@@ -1,0 +1,24 @@
+name: Publish Scheduler Trigger
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  trigger-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger scheduled publish endpoint
+        env:
+          BACKEND_BASE_URL: ${{ secrets.BACKEND_BASE_URL }}
+          SCHEDULER_SECRET: ${{ secrets.SCHEDULER_SECRET }}
+        run: |
+          if [ -z "$BACKEND_BASE_URL" ] || [ -z "$SCHEDULER_SECRET" ]; then
+            echo "Missing BACKEND_BASE_URL or SCHEDULER_SECRET secret"
+            exit 1
+          fi
+          curl -sS -X POST "$BACKEND_BASE_URL/api/v1/publish/run" \
+            -H "Content-Type: application/json" \
+            -H "X-Scheduler-Secret: $SCHEDULER_SECRET"
+
