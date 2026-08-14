@@ -2,7 +2,7 @@ class CopywriterAgent:
     def generate(self, product_name: str, target_audience: str, tone: str) -> dict[str, str]:
         caption = (
             f"{product_name} built for {target_audience}. "
-            f"Tone: {tone}. #BrandCrew #Campaign"
+            f"Tone: {tone}. #breif2reel #Campaign"
         )
         script = (
             f"Meet {product_name}. Designed for {target_audience}. "

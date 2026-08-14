@@ -19,7 +19,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto grid max-w-7xl gap-4 p-4 md:grid-cols-[220px_1fr]">
         <aside className="rounded-lg border border-slate-200 bg-white p-4">
-          <h1 className="mb-4 text-lg font-semibold">BrandCrew</h1>
+          <h1 className="mb-4 text-lg font-semibold">breif2reel</h1>
           <nav className="space-y-1">
             {navItems.map((item) => (
               <NavLink

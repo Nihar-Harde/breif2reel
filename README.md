@@ -1,4 +1,4 @@
-# BrandCrew MVP (Week 1–2 Vertical Slice)
+# breif2reel MVP (Week 1–2 Vertical Slice)
 
 This monorepo implements the Week 1–2 MVP slice from the provided PRD/FRS/NFR/schema/API docs.
 

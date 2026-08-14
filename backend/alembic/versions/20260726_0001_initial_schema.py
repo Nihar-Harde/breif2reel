@@ -17,26 +17,14 @@ down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-platform_enum = sa.Enum("instagram", "facebook", "youtube", name="platform_enum")
-account_status_enum = sa.Enum("connected", "expired", "error", name="account_status_enum")
-brand_asset_source_enum = sa.Enum("pdf", "text", "past_post", name="brand_asset_source_enum")
-campaign_goal_enum = sa.Enum("awareness", "launch", "promotion", "engagement", name="campaign_goal_enum")
-campaign_tone_enum = sa.Enum("playful", "formal", "bold", "minimal", name="campaign_tone_enum")
-campaign_status_enum = sa.Enum(
-    "draft",
-    "generating",
-    "needs_review",
-    "approved",
-    "scheduled",
-    "published",
-    "failed",
-    "rejected",
-    name="campaign_status_enum",
-)
-campaign_asset_type_enum = sa.Enum(
-    "product_image", "brand_guideline_snippet", name="campaign_asset_type_enum"
-)
-post_status_enum = sa.Enum("success", "failed", "pending", name="post_status_enum")
+platform_enum = postgresql.ENUM("instagram", "facebook", "youtube", name="platform_enum", create_type=False)
+account_status_enum = postgresql.ENUM("connected", "expired", "error", name="account_status_enum", create_type=False)
+brand_asset_source_enum = postgresql.ENUM("pdf", "text", "past_post", name="brand_asset_source_enum", create_type=False)
+campaign_goal_enum = postgresql.ENUM("awareness", "launch", "promotion", "engagement", name="campaign_goal_enum", create_type=False)
+campaign_tone_enum = postgresql.ENUM("playful", "formal", "bold", "minimal", name="campaign_tone_enum", create_type=False)
+campaign_status_enum = postgresql.ENUM("draft", "generating", "needs_review", "approved", "scheduled", "published", "failed", "rejected", name="campaign_status_enum", create_type=False)
+campaign_asset_type_enum = postgresql.ENUM("product_image", "brand_guideline_snippet", name="campaign_asset_type_enum", create_type=False)
+post_status_enum = postgresql.ENUM("success", "failed", "pending", name="post_status_enum", create_type=False)
 
 
 def upgrade() -> None:
