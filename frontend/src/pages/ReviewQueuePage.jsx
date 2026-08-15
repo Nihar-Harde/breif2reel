@@ -42,6 +42,22 @@ export function ReviewQueuePage() {
     loadCampaigns();
   }, []);
 
+// --- START: auto-polling for review queue (adds live updates) ---
+useEffect(() => {
+  // Poll every 3s to refresh the list so generated campaigns show up quickly.
+  // Uses the current filters so list reflects selected niche/status.
+  const timer = setInterval(() => {
+    loadCampaigns(filters);
+  }, 3000);
+
+  // Run an immediate refresh when the effect mounts so user sees latest list
+  loadCampaigns(filters);
+
+  return () => clearInterval(timer);
+  // include loadCampaigns and filters in deps to ensure latest values are used
+}, [filters]); 
+// --- END: auto-polling for review queue ---
+  
   const onFilterChange = (event) => {
     const { name, value } = event.target;
     const nextFilters = { ...filters, [name]: value };

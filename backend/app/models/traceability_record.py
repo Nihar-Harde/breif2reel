@@ -20,6 +20,8 @@ class TraceabilityRecord(Base):
     repetition_score: Mapped[Decimal] = mapped_column(Numeric(5, 4), nullable=False, default=Decimal("0"))
     critic_scores: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     critic_justifications: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    # agent_outputs stores outputs from agents (copywriter, critic, etc.) for auditability
+    agent_outputs: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
     campaign = relationship("Campaign", back_populates="traceability_record")

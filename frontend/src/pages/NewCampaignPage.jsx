@@ -24,25 +24,26 @@ export function NewCampaignPage() {
       .catch((error) => setMessage(error.message));
   }, []);
 
-  useEffect(() => {
-    if (!campaign?.id || campaign.status !== "generating") return undefined;
+  const pollCampaignUntilReady = async (campaignId) => {
     setPolling(true);
-    const timer = setInterval(async () => {
-      try {
-        const details = await getCampaign(campaign.id);
+    try {
+      for (let attempt = 0; attempt < 20; attempt += 1) {
+        const details = await getCampaign(campaignId);
         setCampaign(details);
         if (details.status !== "generating") {
-          clearInterval(timer);
-          setPolling(false);
+          return;
         }
-      } catch (error) {
-        setMessage(error.message);
-        clearInterval(timer);
-        setPolling(false);
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1500);
+        });
       }
-    }, 1500);
-    return () => clearInterval(timer);
-  }, [campaign?.id, campaign?.status]);
+      setMessage("Campaign generation is taking longer than expected. Please refresh status.");
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      setPolling(false);
+    }
+  };
 
   const onChange = (event) => {
     const { name, value } = event.target;
@@ -60,8 +61,8 @@ export function NewCampaignPage() {
       });
       setMessage(`Campaign created: ${created.campaign_id}`);
       const started = await generateCampaign(created.campaign_id);
-      const details = await getCampaign(started.campaign_id);
-      setCampaign(details);
+      setCampaign({ id: started.campaign_id, status: "generating" });
+      await pollCampaignUntilReady(started.campaign_id);
       setForm(initialForm);
     } catch (error) {
       setMessage(error.message);
@@ -172,4 +173,3 @@ export function NewCampaignPage() {
     </div>
   );
 }
-

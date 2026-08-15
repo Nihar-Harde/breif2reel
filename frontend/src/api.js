@@ -1,5 +1,5 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
-const TEAM_API_KEY = import.meta.env.VITE_TEAM_API_KEY || "";
+const TEAM_API_KEY = import.meta.env.VITE_TEAM_API_KEY || "breif2reel-team-key-v1";
 
 async function parseResponse(response) {
   if (!response.ok) {

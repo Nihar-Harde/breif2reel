@@ -51,6 +51,8 @@ class CampaignOrchestrator:
                 "engagement_heuristic": "Moderate hook strength; can be tightened.",
                 "overall": "Good draft for human review.",
             }
+            # store agent outputs for auditability
+            existing_trace.agent_outputs = {"copywriter": generated}
         else:
             db.add(
                 TraceabilityRecord(
@@ -71,6 +73,7 @@ class CampaignOrchestrator:
                         "engagement_heuristic": "Moderate hook strength; can be tightened.",
                         "overall": "Good draft for human review.",
                     },
+                    agent_outputs={"copywriter": generated},
                 )
             )
 
