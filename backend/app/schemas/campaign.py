@@ -39,6 +39,7 @@ class CampaignRead(BaseModel):
     target_audience: str
     campaign_goal: CampaignGoalEnum
     tone: CampaignToneEnum
+    brand_guideline_text: str | None = None
     status: CampaignStatusEnum
     generated_caption: str | None
     generated_script: str | None

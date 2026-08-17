@@ -49,6 +49,7 @@ def create_campaign(payload: CampaignCreate, db: Session = Depends(get_db)) -> C
         target_audience=payload.target_audience,
         campaign_goal=payload.campaign_goal,
         tone=payload.tone,
+        brand_guideline_text=payload.brand_guideline_text,
         status=CampaignStatusEnum.draft,
     )
     db.add(campaign)
@@ -108,6 +109,7 @@ def get_campaign(campaign_id: UUID, db: Session = Depends(get_db)) -> CampaignRe
         target_audience=campaign.target_audience,
         campaign_goal=campaign.campaign_goal,
         tone=campaign.tone,
+        brand_guideline_text=campaign.brand_guideline_text,
         status=campaign.status,
         generated_caption=campaign.generated_caption,
         generated_script=campaign.generated_script,

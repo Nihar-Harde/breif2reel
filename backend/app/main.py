@@ -20,6 +20,9 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
+# Add auth first so CORS (added below) remains the outer wrapper and
+# can attach CORS headers even when auth or route errors occur.
+app.add_middleware(TeamApiKeyAuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[origin.strip() for origin in settings.backend_cors_origins.split(",") if origin.strip()],
@@ -27,7 +30,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.add_middleware(TeamApiKeyAuthMiddleware)
 
 app.include_router(campaigns_router, prefix=settings.api_v1_prefix)
 app.include_router(niches_router, prefix=settings.api_v1_prefix)

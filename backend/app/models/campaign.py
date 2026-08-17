@@ -19,6 +19,7 @@ class Campaign(Base):
     target_audience: Mapped[str] = mapped_column(Text, nullable=False)
     campaign_goal: Mapped[CampaignGoalEnum] = mapped_column(Enum(CampaignGoalEnum, name="campaign_goal_enum"), nullable=False)
     tone: Mapped[CampaignToneEnum] = mapped_column(Enum(CampaignToneEnum, name="campaign_tone_enum"), nullable=False)
+    brand_guideline_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[CampaignStatusEnum] = mapped_column(
         Enum(CampaignStatusEnum, name="campaign_status_enum"),
         nullable=False,
