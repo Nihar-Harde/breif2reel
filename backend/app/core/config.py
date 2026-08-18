@@ -10,8 +10,11 @@ class Settings(BaseSettings):
     team_api_key: str
     scheduler_secret: str = ""
     backend_cors_origins: str = "http://localhost:5173"
+    groq_api_key: str | None = None
+    gemini_api_key: str | None = None
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=False)
+
 
 
 @lru_cache

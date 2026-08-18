@@ -21,12 +21,16 @@ class CampaignOrchestrator:
         if not campaign:
             return
 
+        retrieved_chunks = self.retrieval.retrieve(str(campaign.niche_id), campaign.product_name)
         generated = self.copywriter.generate(
             product_name=campaign.product_name,
             target_audience=campaign.target_audience,
             tone=campaign.tone.value,
+            campaign_goal=campaign.campaign_goal.value,
+            brand_guideline_text=campaign.brand_guideline_text,
+            retrieved_chunks=retrieved_chunks,
         )
-        retrieved_chunks = self.retrieval.retrieve(str(campaign.niche_id), campaign.product_name)
+
 
         time.sleep(1.2)
         campaign.generated_caption = generated["caption"]
