@@ -1,95 +1,187 @@
-# breif2reel MVP (Week 1–2 Vertical Slice)
+# Brief2Reel
 
-This monorepo implements the Week 1–2 MVP slice from the provided PRD/FRS/NFR/schema/API docs.
+Brief2Reel is an automated marketing engine that converts product briefs into publish-ready short-form video assets (Instagram Reels, Facebook Videos, YouTube Shorts). The system coordinates niche-specific retrieval (RAG), multi-agent LLM generation for copy and scripts, quality evaluation scoring, and automated publishing pipelines.
 
-## Monorepo Structure
+---
 
-- `backend/` — FastAPI + SQLAlchemy + Alembic
-- `frontend/` — React (Vite) + Tailwind
-- `evaluation/` — Evaluation scaffold
-- `infra/` — GitHub Actions cron + local run scripts + env examples
+## Repository Structure
 
-## Implemented Scope (Week 1–2)
+```
+.
+├── backend/                  # FastAPI backend service
+│   ├── alembic/              # Database migration scripts
+│   ├── app/
+│   │   ├── agents/           # Copywriting & generation agents
+│   │   ├── core/             # Configuration, auth, and error handling
+│   │   ├── db/               # Database engine & session management
+│   │   ├── models/           # SQLAlchemy ORM models
+│   │   ├── retrieval/        # Vector search & grounding retrieval
+│   │   ├── routes/           # API endpoints (campaigns, niches, publishing)
+│   │   ├── schemas/          # Pydantic request/response schemas
+│   │   ├── services/         # Orchestrator & LLM provider integrations
+│   │   ├── main.py           # FastAPI application entry point
+│   │   └── seed.py           # Database seeder for default niches
+│   └── requirements.txt      # Python dependencies
+├── frontend/                 # React SPA (Vite + Tailwind CSS)
+│   ├── src/
+│   │   ├── pages/            # New Campaign & Review Queue views
+│   │   ├── api.js            # API client wrapper
+│   │   ├── App.jsx           # Router & layout
+│   │   └── main.jsx          # Frontend entry point
+│   └── package.json
+├── requirments/              # System architecture, PRD, FRS, and specs
+├── evaluation/               # Pipeline evaluation scripts
+└── infra/                    # Deployment configs & runner scripts
+```
 
-- Campaign brief intake API (`POST /api/v1/campaigns`)
-- Campaign generation trigger (`POST /api/v1/campaigns/{id}/generate`)
-- Campaign detail (`GET /api/v1/campaigns/{id}`)
-- Campaign list/filter (`GET /api/v1/campaigns?niche_id=&status=`)
-- DB models + initial Alembic migration for:
-  - `niches`
-  - `accounts`
-  - `campaigns`
-  - `campaign_assets`
-  - `traceability_records`
-  - `post_history`
-  - `brand_assets`
-- Team API key auth (`Authorization: Bearer <TEAM_API_KEY>`) on write routes
-- Standardized API error shape: `{ "error": { "code": "...", "message": "..." } }`
-- Placeholder orchestrator status transitions: `draft -> generating -> needs_review`
-- Seed script for niches:
-  - Tech & Gadgets
-  - Home & Kitchen
-  - Fitness
-- Frontend:
-  - New Campaign page wired to backend
-  - Review Queue page with niche/status filters
-- Scheduler scaffold:
-  - GitHub Actions cron calling backend `/api/v1/publish/run`
+---
 
-## Backend Setup
+## Current Implementation Status
 
-> Recommended Python: **3.11 or 3.12** (some AI/media dependencies do not yet provide wheels for Python 3.14).
+### Backend & Core Pipeline
+- **REST API (`FastAPI`)**: Complete CRUD and orchestration endpoints for campaigns, niches, and automated scheduler triggers.
+- **Relational Data Layer (`PostgreSQL` + `SQLAlchemy 2.0` + `Alembic`)**: Full schemas and migrations for niches, accounts, campaigns, campaign assets, traceability records, brand guidelines, and post history.
+- **Multi-Provider LLM Integration**:
+  - Primary provider: **Groq** (`llama-3.3-70b-versatile`) with structured JSON output enforcement.
+  - Fallback provider: **Google Gemini** (`gemini-1.5-flash`).
+  - Offline deterministic fallback for local testing without active API keys.
+- **Copywriter Agent**: Generates short-form marketing copy (captions, hashtags, 15–20s voiceover scripts, and text-to-image prompts) grounded in product briefs and brand guidelines.
+- **Asynchronous Orchestrator**: Background pipeline managing campaign lifecycle (`draft` → `generating` → `needs_review`), grounding context injection, and logging critic evaluation scores (brand voice fit, claim accuracy, engagement heuristic).
+- **Security & Error Handling**: Team Bearer token authentication on write endpoints, scheduler token validation for automated cron tasks, and uniform error formatting.
 
-1. Create and activate a virtual environment.
-2. Install dependencies:
-   ```powershell
+### Frontend Dashboard
+- **Campaign Intake Form**: Form with live niche fetching, audience targeting, tone selection, campaign goals, and custom brand guidelines.
+- **Review Queue**: Filterable campaign list (by niche and status) with detailed modal inspection showing generated captions, voiceover scripts, image prompts, and audit metrics.
+
+### Automation & CI/CD
+- **Scheduled Publishing Scaffold**: GitHub Actions cron workflow (`publish-cron.yml`) to invoke backend publishing triggers.
+- **Local Run Scripts**: PowerShell launcher scripts under `infra/scripts/`.
+
+---
+
+## Prerequisites
+
+- **Python**: `3.11` or `3.12` (Python 3.14 is currently not supported by some AI/media dependencies)
+- **Node.js**: `18.x` or `20.x` (with `npm`)
+- **PostgreSQL**: Local or hosted instance (e.g. Supabase, Neon, or local Postgres service)
+- **API Keys (Optional but recommended)**:
+  - Groq API Key (for Llama 3.3 70B generation)
+  - Gemini API Key (for fallback generation)
+
+---
+
+## Local Setup Instructions
+
+### 1. Database Setup
+
+Create a PostgreSQL database for the project:
+
+```sql
+CREATE DATABASE breif2reel;
+```
+
+### 2. Backend Setup
+
+1. Navigate to the `backend` directory:
+   ```bash
    cd backend
+   ```
+
+2. Create and activate a virtual environment:
+   - **Windows (PowerShell)**:
+     ```powershell
+     python -m venv .venv
+     .venv\Scripts\Activate.ps1
+     ```
+   - **macOS / Linux**:
+     ```bash
+     python3 -m venv .venv
+     source .venv/bin/activate
+     ```
+
+3. Install dependencies:
+   ```bash
    pip install -r requirements.txt
    ```
-3. Copy env file:
-   ```powershell
-   Copy-Item .env.example .env
+
+4. Configure environment variables:
+   ```bash
+   cp .env.example .env
    ```
-4. Run DB migrations:
-   ```powershell
+   Edit `.env` and fill in your database credentials and API keys:
+   ```ini
+   DATABASE_URL=postgresql+psycopg://postgres:postgres@localhost:5432/breif2reel
+   TEAM_API_KEY=your-team-secret-key
+   SCHEDULER_SECRET=your-scheduler-secret
+   BACKEND_CORS_ORIGINS=http://localhost:5173
+   GROQ_API_KEY=your-groq-api-key
+   GEMINI_API_KEY=your-gemini-api-key
+   ```
+
+5. Apply database migrations:
+   ```bash
    alembic upgrade head
    ```
-5. Seed default niches:
-   ```powershell
+
+6. Seed initial niches (*Tech & Gadgets, Home & Kitchen, Fitness*):
+   ```bash
    python -m app.seed
    ```
-6. Run backend:
-   ```powershell
+
+7. Start the FastAPI development server:
+   ```bash
    uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
    ```
+   The backend API will be available at `http://127.0.0.1:8000`. Interactive API docs can be accessed at `http://127.0.0.1:8000/docs`.
 
-## Frontend Setup
+---
 
-1. Install dependencies:
-   ```powershell
+### 3. Frontend Setup
+
+1. Open a new terminal and navigate to the `frontend` directory:
+   ```bash
    cd frontend
+   ```
+
+2. Install dependencies:
+   ```bash
    npm install
    ```
-2. Copy env file:
-   ```powershell
-   Copy-Item .env.example .env
+
+3. Configure environment variables:
+   ```bash
+   cp .env.example .env
    ```
-3. Run frontend:
-   ```powershell
+   Verify that `frontend/.env` matches your backend configuration:
+   ```ini
+   VITE_API_BASE_URL=http://localhost:8000/api/v1
+   VITE_TEAM_API_KEY=your-team-secret-key
+   ```
+
+4. Start the Vite development server:
+   ```bash
    npm run dev
    ```
+   Open `http://localhost:5173` in your browser.
 
-## Scheduler Setup (GitHub Actions)
+---
 
-Workflow file (active for GitHub Actions): `.github/workflows/publish-cron.yml`  
-Infra copy: `infra/github/workflows/publish-cron.yml`
+## API Reference Summary
 
-Configure repo secrets:
-- `BACKEND_BASE_URL` (e.g. `https://your-backend-url.onrender.com`)
-- `SCHEDULER_SECRET` (same value as backend `SCHEDULER_SECRET`)
+| Method | Endpoint | Description | Auth Required |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/niches` | List available campaign niches | No |
+| `GET` | `/api/v1/campaigns` | List campaigns with optional `niche_id` and `status` filters | No |
+| `GET` | `/api/v1/campaigns/{id}` | Get full campaign details including audit trace and critic scores | No |
+| `POST` | `/api/v1/campaigns` | Create a new campaign brief | Yes (`Bearer <TEAM_API_KEY>`) |
+| `POST` | `/api/v1/campaigns/{id}/generate` | Trigger async AI copy and script generation pipeline | Yes (`Bearer <TEAM_API_KEY>`) |
+| `POST` | `/api/v1/publish/run` | Scheduled publishing runner endpoint | Yes (`X-Scheduler-Secret`) |
 
-## Notes
+---
 
-- External publishing APIs are intentionally not implemented yet; only interfaces/scaffolds are included.
-- Retrieval and generation are scaffolded with placeholders to preserve extensibility for upcoming sprints.
+## Next Steps / Upcoming Milestones
 
+- **Media Generation Pipeline**: Text-to-Speech audio rendering via `edge-tts` and image generation / video assembly via `moviepy`.
+- **RAG Enhancement**: Populate ChromaDB embeddings with high-performing niche reels and competitor hooks.
+- **Social Media Publishing**: Direct platform publishing integration (Instagram Graph API / Meta Graph API).
+- **Automated Critic Feedback Loop**: Dynamic LLM-as-a-judge scoring instead of static heuristics before pushing to review queue.
