@@ -2,8 +2,497 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+/* ===================================================================
+   Brief2Reel — Warm Editorial & Brand Agency System (Option C)
+   Palette: Linen, Espresso, Warm Stone & Terracotta
+   =================================================================== */
+
+:root {
+  /* Surface Layers (Warm Linen & Ivory Stack) */
+  --bg-canvas: #fbf9f5;
+  --bg-panel: #ffffff;
+  --bg-elevated: #f5f2eb;
+  --bg-elevated-hover: #ede8dc;
+  
+  /* Hairline Warm Stone Borders */
+  --border-subtle: #e6e0d4;
+  --border-hover: #d3cbbe;
+  --border-active: #c2410c;
+
+  /* Typography Colors (Espresso & Warm Taupe) */
+  --text-primary: #1c1917; /* stone-900 deep espresso */
+  --text-secondary: #57534e; /* stone-600 warm taupe */
+  --text-muted: #78716c; /* stone-500 */
+  --text-disabled: #a8a29e;
+
+  /* Accent Color Economy (Terracotta, Sage & Warm Amber) */
+  --accent-primary: #c2410c; /* terracotta-700 */
+  --accent-primary-hover: #9a3412; /* terracotta-800 */
+  --accent-emerald: #15803d; /* sage green */
+  --accent-amber: #d97706; /* warm ochre */
+  --accent-rose: #b91c1c; /* burnt crimson */
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Monospace Tabular Figures */
+.font-mono, code, kbd, samp, pre {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Headings with Tight Letter-Spacing */
+h1, h2, h3, h4, h5, h6, .heading-tight {
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Subtle Warm Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d6d0c4;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b8b0a2;
+}
+
+/* ===================================================================
+   Surface Primitives
+   =================================================================== */
+
+.surface-panel {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(60, 50, 40, 0.04);
+  transition: border-color 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms ease;
+}
+
+.surface-panel:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 2px 6px rgba(60, 50, 40, 0.06);
+}
+
+.surface-elevated {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+/* Hairline Separator */
+.hairline-divider {
+  height: 1px;
+  background-color: var(--border-subtle);
+  width: 100%;
+}
+
+/* ===================================================================
+   Buttons with Tactile Click Depression
+   =================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  line-height: 1;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  outline: none;
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 120ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 120ms cubic-bezier(0.16, 1, 0.3, 1),
+              color 120ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 120ms ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.985);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Primary Button (Deep Espresso or Rich Terracotta) */
+.btn-primary {
+  background-color: #1c1917;
+  color: #ffffff;
+  border: 1px solid #1c1917;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(28, 25, 23, 0.15);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #292524;
+  border-color: #292524;
+  box-shadow: 0 2px 5px rgba(28, 25, 23, 0.2);
+}
+
+/* Accent Terracotta Button */
+.btn-accent {
+  background-color: var(--accent-primary);
+  color: #ffffff;
+  border: 1px solid var(--accent-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(194, 65, 12, 0.2);
+}
+
+.btn-accent:hover:not(:disabled) {
+  background-color: var(--accent-primary-hover);
+  border-color: var(--accent-primary-hover);
+}
+
+/* Secondary Neutral Surface Button */
+.btn-secondary {
+  background-color: #ffffff;
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 2px rgba(60, 50, 40, 0.04);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-hover);
+}
+
+/* Ghost Button */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: rgba(60, 50, 40, 0.05);
+  color: var(--text-primary);
+}
+
+/* Success Button */
+.btn-success {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-weight: 600;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #dcfce7;
+  border-color: #86efac;
+}
+
+/* Destructive / Reject Button */
+.btn-destructive {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  font-weight: 600;
+}
+
+.btn-destructive:hover:not(:disabled) {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* ===================================================================
+   Form Controls (Precision Warm Inputs, Selects, Textareas)
+   =================================================================== */
+
+.input-base, .select-base, .textarea-base {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem; /* 13px */
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+  box-shadow: inset 0 1px 2px rgba(60, 50, 40, 0.02);
+}
+
+.input-base::placeholder, .textarea-base::placeholder {
+  color: var(--text-disabled);
+}
+
+.input-base:hover:not(:focus),
+.select-base:hover:not(:focus),
+.textarea-base:hover:not(:focus) {
+  border-color: var(--border-hover);
+}
+
+.input-base:focus,
+.select-base:focus,
+.textarea-base:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1.5px rgba(194, 65, 12, 0.25);
+}
+
+.select-base {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+}
+
+.select-base option {
+  background-color: #ffffff;
+  color: #1c1917;
+  padding: 6px 10px;
+}
+
+/* Micro Form Label */
+.label-micro {
+  display: block;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+/* ===================================================================
+   Status Badges with 6px Indicators
+   =================================================================== */
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.6875rem; /* 11px */
+  font-family: var(--font-mono);
+  font-weight: 600;
+  line-height: 1.4;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Semantic Badges in Option C */
+.badge-needs_review {
+  background-color: #fff7ed;
+  color: #c2410c;
+  border-color: #fed7aa;
+}
+.badge-needs_review .status-dot { background-color: #ea580c; }
+
+.badge-generating {
+  background-color: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+.badge-generating .status-dot {
+  background-color: #d97706;
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.badge-approved {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+.badge-approved .status-dot { background-color: #16a34a; }
+
+.badge-published {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border-color: #86efac;
+}
+.badge-published .status-dot { background-color: #16a34a; }
+
+.badge-scheduled {
+  background-color: #f5f3ff;
+  color: #6d28d9;
+  border-color: #ddd6fe;
+}
+.badge-scheduled .status-dot { background-color: #7c3aed; }
+
+.badge-draft {
+  background-color: #f5f5f4;
+  color: #57534e;
+  border-color: #d6d3d1;
+}
+.badge-draft .status-dot { background-color: #78716c; }
+
+.badge-failed, .badge-rejected {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+.badge-failed .status-dot, .badge-rejected .status-dot { background-color: #dc2626; }
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.75); }
+}
+
+/* ===================================================================
+   Slide-Over Inspection Sheet
+   =================================================================== */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(28, 25, 23, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 90;
+  opacity: 0;
+  animation: sheetBackdropFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sheetBackdropFadeIn {
+  to { opacity: 1; }
+}
+
+.sheet-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 820px;
+  background-color: #ffffff;
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: -12px 0 36px rgba(60, 50, 40, 0.15);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  animation: sheetSlideIn 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  overflow: hidden;
+}
+
+@keyframes sheetSlideIn {
+  to { transform: translateX(0); }
+}
+
+/* ===================================================================
+   Data Table Styling
+   =================================================================== */
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.data-table th {
+  padding: 10px 16px;
+  font-size: 0.6875rem; /* 11px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: #f5f2eb;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  transition: background-color 100ms ease;
+}
+
+.data-table tr:hover td {
+  background-color: #faf8f3;
+  color: var(--text-primary);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Shimmer skeleton */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(60, 50, 40, 0.04) 0%,
+    rgba(60, 50, 40, 0.08) 50%,
+    rgba(60, 50, 40, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Audio waveform animated bars */
+.waveform-bar {
+  width: 2px;
+  background-color: var(--accent-primary);
+  border-radius: 1px;
+  animation: waveformJump 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes waveformJump {
+  0% { height: 4px; }
+  50% { height: 16px; }
+  100% { height: 8px; }
+}
