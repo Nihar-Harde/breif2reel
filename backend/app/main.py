@@ -9,9 +9,11 @@ from app.core.errors import (
     unhandled_exception_handler,
     validation_exception_handler,
 )
+from app.routes.brand_assets import router as brand_assets_router
 from app.routes.campaigns import router as campaigns_router
 from app.routes.niches import router as niches_router
 from app.routes.publish import router as publish_router
+from app.routes.analytics import router as analytics_router
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name)
@@ -31,9 +33,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(brand_assets_router, prefix=settings.api_v1_prefix)
 app.include_router(campaigns_router, prefix=settings.api_v1_prefix)
 app.include_router(niches_router, prefix=settings.api_v1_prefix)
 app.include_router(publish_router, prefix=settings.api_v1_prefix)
+app.include_router(analytics_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/health")

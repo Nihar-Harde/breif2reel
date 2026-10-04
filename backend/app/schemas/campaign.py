@@ -47,6 +47,8 @@ class CampaignRead(BaseModel):
     created_at: datetime
     updated_at: datetime
     traceability: TraceabilityRead | None = None
+    audio_url: str | None = None
+    video_url: str | None = None
 
 
 class CampaignListItem(BaseModel):
@@ -60,4 +62,14 @@ class CampaignListItem(BaseModel):
 
 class CampaignListResponse(BaseModel):
     items: list[CampaignListItem]
+
+
+class CampaignStatusUpdate(BaseModel):
+    status: CampaignStatusEnum
+
+
+class CampaignStatusUpdateResponse(BaseModel):
+    campaign_id: UUID
+    status: CampaignStatusEnum
+    message: str
 
