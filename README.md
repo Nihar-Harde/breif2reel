@@ -181,7 +181,7 @@ CREATE DATABASE breif2reel;
 
 ## Next Steps / Upcoming Milestones
 
-- **Media Generation Pipeline**: Text-to-Speech audio rendering via `edge-tts` and image generation / video assembly via `moviepy`.
+- **Media Generation Pipeline**: Text-to-Speech audio rendering via `edge-tts`, AI video generation via self-hosted `LTX-Video Pro` on Azure Container Apps Serverless GPU (A100), and video compositing via `moviepy` / `ffmpeg`.
 - **RAG Enhancement**: Populate ChromaDB embeddings with high-performing niche reels and competitor hooks.
 - **Social Media Publishing**: Direct platform publishing integration (Instagram Graph API / Meta Graph API).
 - **Automated Critic Feedback Loop**: Dynamic LLM-as-a-judge scoring instead of static heuristics before pushing to review queue.

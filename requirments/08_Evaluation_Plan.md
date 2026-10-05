@@ -8,6 +8,7 @@ The reference project (LexMind) validates RAG answer quality with a RAGAS-based 
 3. **Diversity / non-repetition** — is new content meaningfully different from the account's recent post history?
 4. **Pipeline reliability** — does the multi-agent pipeline complete successfully, and how often does each agent fail or need a retry?
 5. **Publish reliability** — per-platform publish success rate.
+6. **Video generation fitness** — output-contract compliance, prompt adherence, latency, GPU memory/runtime behavior, retry rate, and cost.
 
 ## 2. Online Evaluation (in-pipeline, every campaign)
 Implemented as the Critic/QA Agent (FR-AGENT-05). For every generated campaign, the Critic LLM scores the draft on a 0–100 scale across four dimensions, with a short justification per dimension:
@@ -18,12 +19,16 @@ Implemented as the Critic/QA Agent (FR-AGENT-05). For every generated campaign, 
 
 An **overall score** is the average of the four; campaigns below a configured threshold (e.g., 65) are flagged `needs_review` in the UI but still shown to the human — the system never auto-blocks, it only flags, since human approval is mandatory regardless (FR-APPROVE-03).
 
+Video metadata is checked independently: output must be MP4, 720x1280, 9:16, and ≥ 10 seconds (default 10.04s, 241 frames at 24 fps). Invalid output is a generation failure even if the Critic score is high.
+
 ## 3. Offline Evaluation (batch, for the project report)
 A script (`evaluation/evaluate.py`, mirroring the reference project's evaluation script) runs a fixed batch of sample campaign briefs (e.g., 20–30 briefs spanning all niches and campaign goals) through the full pipeline without publishing, and reports:
 - Distribution of Critic scores per dimension (mean, min, max) per niche.
 - Distribution of repetition/diversity scores.
 - Agent-level failure/retry rate (how often each agent needed a retry or fallback path).
-- End-to-end generation time (p50/p95).
+- End-to-end generation time (p50/p95, targeting ~3–4 min warm, < 5 min cold).
+- Video inference p50/p95 latency, cold-start time, peak VRAM, output-contract pass rate, retry/fallback rate, GPU-seconds, estimated cost per clip (~$0.08–$0.12), and cumulative batch cost for ~60 videos against the $190 budget ceiling.
+- LTX-Video Pro performance on the A100 profile (and T4 fallback), including human prompt-adherence ratings and stability metrics.
 - A small human-reviewed sample (5–10 outputs) where a team member manually rates agreement with the Critic's scores, to sanity-check that the automated Critic isn't systematically over- or under-scoring — this substitutes for RAGAS's "faithfulness"-style check in a domain without ground-truth answers.
 
 ## 4. Publish Reliability Metrics
@@ -33,4 +38,4 @@ Tracked continuously via `post_history` (FR-PUBLISH-07):
 - Time from approval to successful publish.
 
 ## 5. Reporting
-The final Evaluation Report (produced Week 8) includes: methodology, the rubric definition, aggregate scores from the offline batch run, the human-agreement spot-check results, publish reliability numbers, and a short discussion of known limitations (e.g., Critic is LLM-judged and not a ground-truth metric; free-tier rate limits capped batch size during evaluation). This report is the direct analog to the reference project's RAGAS evaluation output and is what elevates BrandCrew from "a demo that works once" to a system whose quality claims are actually measured.
+The final Evaluation Report (produced Week 8) includes: methodology, the rubric definition, aggregate scores from the offline batch run, video model benchmark results, output-contract compliance, cost/GPU telemetry, human-agreement spot-check results, publish reliability numbers, and a short discussion of known limitations (e.g., Critic is LLM-judged and not a ground-truth metric; GPU quota, cold starts, and batch size may constrain evaluation). This report is the direct analog to the reference project's RAGAS evaluation output and is what elevates BrandCrew from "a demo that works once" to a system whose quality claims are actually measured.
