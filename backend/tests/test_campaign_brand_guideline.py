@@ -1,5 +1,10 @@
+import os
+import sys
 import unittest
 import uuid
+
+# Ensure backend root is on sys.path for direct or discovered execution
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.models.campaign import Campaign
 from app.models.enums import CampaignGoalEnum, CampaignToneEnum
