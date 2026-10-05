@@ -38,6 +38,35 @@
 
 ## System Architecture
 
+<p align="center">
+  <img src="docs/assets/architecture.jpg" alt="Brief2Reel System Architecture" width="100%" />
+</p>
+
+<details>
+<summary><b>Click to expand Architectural Component Mapping (A &ndash; Q) &amp; Mermaid Specification</b></summary>
+
+<br>
+
+| Node | Architecture Component | Responsibility |
+| :---: | :--- | :--- |
+| **A** | **Operator Intake / React 18 Studio** | Structured brief intake with niche targeting, audience, tone, and brand document upload |
+| **B** | **FastAPI Backend Engine** | REST API gateway, authentication middleware, and orchestration router |
+| **C** | **Campaign Orchestrator** | Asynchronous state machine sequencing context retrieval, multi-agent generation, and persistence |
+| **D** | **ChromaDB Vector Store** | Isolated per-niche vector collections using `all-MiniLM-L6-v2` embeddings |
+| **E** | **Brand Guidelines / PDFs** | Automated document ingestion and chunking for zero-hallucination grounding |
+| **F** | **Past Post Indexer** | Semantic anti-repetition guard measuring cosine distance against historical posts |
+| **G** | **Copywriter Agent** | Structured marketing copy, hooks, and scene descriptions (Groq Llama 3.3 / Gemini fallback) |
+| **H** | **Design Agent** | 9:16 portrait product visual generation via Gemini Imagen (`imagen-3.0-generate-002`) |
+| **I** | **Audio Agent** | Voiceover audio synthesis mapped to tone profiles via Microsoft Edge-TTS |
+| **J** | **Video Agent & Compositor** | Kinetic motion rendering, dynamic subtitle synchronization, and audio mixing |
+| **K** | **Critic Agent (LLM-as-a-Judge)** | 5-dimension quality scoring rubric with stored written justifications |
+| **L** | **PostgreSQL DB** | Relational state store for campaigns, assets, audit traces, and post history |
+| **M** | **Review Queue & 9:16 Player** | Operator review studio with vertical video playback and traceability inspection |
+| **N** | **Publishing Dispatcher** | Multi-platform publishing router with retry handling and media cleanup |
+| **O** | **Cloudinary CDN** | Temporary media transcoding and public CDN hosting |
+| **P** | **Instagram Reels** | Direct container creation and publishing via Meta Graph API |
+| **Q** | **YouTube Shorts** | Resumable video upload via YouTube Data API v3 |
+
 ```mermaid
 graph TD
     A[Operator Intake / React 18 Studio] -->|POST /api/v1/campaigns| B[FastAPI Backend Engine]
@@ -69,6 +98,8 @@ graph TD
         N -->|Data API v3 Resumable Upload| Q[YouTube Shorts]
     end
 ```
+
+</details>
 
 ---
 

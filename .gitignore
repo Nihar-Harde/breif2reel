@@ -55,3 +55,4 @@ backend/colab_video_server.ipynb
 
 # ─── Agents config (local IDE customization) ──────────────
 .agents/
+restart_ide_with_restored_history.bat
