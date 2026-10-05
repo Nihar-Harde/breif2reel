@@ -1,14 +1,15 @@
 # Non-Functional Requirements (NFR) — BrandCrew
 
 ## 1. Performance
-- End-to-end generation (brief submitted → content ready for review) shall complete in under 3 minutes under normal conditions (excludes Render free-tier cold start, which is a separate, documented UX consideration).
-- Video compositing (MoviePy/FFmpeg) shall target ≤ 60 seconds render time for a 15–30s clip on the deployed free-tier instance; if this is exceeded in practice, offload rendering to a GitHub Actions job runner instead of the live web request path.
+- End-to-end generation shall be asynchronous and expose progress; the system shall record p50/p95 time from submission to review-ready output. The target is to complete in ~3–4 minutes when the GPU service is warm, and under 5 minutes including cold start.
+- Video inference shall generate exactly 720x1280 portrait output of ≥ 10 seconds (default 10.04s, 241 frames at 24 fps), and video compositing (MoviePy/FFmpeg) shall target ≤ 30 seconds after inference completes. Long-running generation shall never block the live web request path.
 - Dashboard views (Review Queue, Post History) shall load in under 2 seconds against a database of up to 500 campaigns (well within free-tier DB size).
 
 ## 2. Reliability
-- Every external API call (Groq/Gemini, Pollinations.ai, Meta Graph API, YouTube Data API, Cloudinary) shall be wrapped with retry-with-backoff (max 2 retries) and a documented fallback where one exists (e.g., Gemini as LLM fallback, HF Inference as image-gen fallback).
+- Every external API call and video inference submission (Groq/Gemini, Pollinations.ai, Azure Container Apps video service, Azure Blob Storage, Meta Graph API, YouTube Data API, Cloudinary) shall be wrapped with retry-with-backoff (max 2 retries) and a documented fallback where one exists.
+- Each frontend-triggered video request shall be idempotent, resumable after transient service failure, and isolated from other requests. Azure Container Apps shall control concurrency according to available GPU replicas; a single GPU replica shall not be overloaded with simultaneous model generations (`--max-replicas 1`, 1 job per GPU).
 - A failure in one platform's publish step (FR-PUBLISH-05) shall never block or roll back successful publishes to the other two platforms — failures are isolated per platform.
-- The Render free-tier backend spins down after 15 minutes of inactivity (documented, 30–60s cold-start on next request). The system shall surface a "waking up" state in the UI rather than a silent failure/timeout, and the GitHub Actions cron trigger doubles as a natural keep-alive on its schedule.
+- The backend and Azure video service may cold-start or scale to zero. The system shall surface a "starting GPU service" state in the UI rather than a silent failure/timeout; no keep-alive shall be used solely to avoid scale-to-zero billing.
 - Supabase free-tier projects pause after 7 days without database activity; since the daily scheduled job writes to the DB on every run, this should not occur in practice, but a lightweight daily health-check write is added as a safety net.
 
 ## 3. Security
@@ -23,9 +24,9 @@
 - Only team-owned or team-managed accounts (added as roles on the Meta Developer app / test users) are used in MVP — no third-party account onboarding, which keeps the system within Standard Access and avoids the Meta App Review requirement (see Tech Stack research).
 
 ## 5. Cost Ceiling
-- Total infrastructure cost: **$0/month**, hard ceiling for the academic project duration.
-- Any tool with a metered free tier (Cloudinary credits, YouTube quota units, Groq/Gemini rate limits) shall have its usage logged so the team can detect approaching limits before they cause a demo failure.
-- No tool requiring a credit card at signup is used unless explicitly flagged as a no-charge trial (none currently required in the recommended stack).
+- Ongoing cash spend shall be zero; Azure GPU usage shall be bounded by the available $200 credit with a hard safety stop at **$190** for ~60 videos. The system shall log GPU-seconds, estimated cost, and cumulative budget consumption, with tiered alerts (50%, 75%, 90%, 100%).
+- Any metered service (Azure GPU/Blob, Cloudinary credits, YouTube quota units, Groq/Gemini rate limits) shall have its usage logged so the team can detect approaching limits before a demo failure.
+- Azure GPU pricing and meter availability shall be verified in Cost Management after deployment; documented estimates shall not be treated as billing guarantees.
 
 ## 6. Maintainability
 - Backend organized as distinct service layers (agents, retrieval, dispatcher, scheduler trigger, API routes) — not a single script — mirroring the reference project's separation of ingestion/retrieval/generation/frontend/evaluation.

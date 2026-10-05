@@ -9,9 +9,11 @@ from app.core.errors import (
     unhandled_exception_handler,
     validation_exception_handler,
 )
+from app.routes.brand_assets import router as brand_assets_router
 from app.routes.campaigns import router as campaigns_router
 from app.routes.niches import router as niches_router
 from app.routes.publish import router as publish_router
+from app.routes.analytics import router as analytics_router
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name)
@@ -26,14 +28,17 @@ app.add_middleware(TeamApiKeyAuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[origin.strip() for origin in settings.backend_cors_origins.split(",") if origin.strip()],
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.include_router(brand_assets_router, prefix=settings.api_v1_prefix)
 app.include_router(campaigns_router, prefix=settings.api_v1_prefix)
 app.include_router(niches_router, prefix=settings.api_v1_prefix)
 app.include_router(publish_router, prefix=settings.api_v1_prefix)
+app.include_router(analytics_router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/health")

@@ -47,6 +47,9 @@ class CampaignStatusEnum(str, enum.Enum):
 class CampaignAssetTypeEnum(str, enum.Enum):
     product_image = "product_image"
     brand_guideline_snippet = "brand_guideline_snippet"
+    voiceover_audio = "voiceover_audio"
+    generated_image = "generated_image"
+    final_video = "final_video"
 
 
 class PostStatusEnum(str, enum.Enum):

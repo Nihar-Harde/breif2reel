@@ -1,18 +1,57 @@
-# Python
+# ─── Python ───────────────────────────────────────────────
 __pycache__/
+**/__pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 .venv/
 venv/
+*.egg-info/
+*.egg
 
-# Node
+# ─── Node ─────────────────────────────────────────────────
 node_modules/
 dist/
 
-# Env
+# ─── Environment / Secrets (ALL locations) ────────────────
 .env
+**/.env
 *.env.local
+**/*.env.local
+.env.*
+!.env.example
+!**/.env.example
 
-# OS/editor
+# ─── OS / Editor ──────────────────────────────────────────
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
 
+# ─── IDE ──────────────────────────────────────────────────
+.vscode/
+.idea/
+*.code-workspace
+
+# ─── Generated media artifacts ────────────────────────────
+media_output/
+backend/media_output/
+
+# ─── ChromaDB vector store data ───────────────────────────
+chroma_data/
+backend/chroma_data/
+
+# ─── Private / Personal artifacts ─────────────────────────
+azure_setup_guide.html
+*.private.html
+summary.pdf
+
+# ─── Test / Debug artifacts ───────────────────────────────
+backend/payload.json
+
+# ─── Notebooks (not diff-friendly in git) ─────────────────
+backend/colab_video_server.ipynb
+
+# ─── Agents config (local IDE customization) ──────────────
+.agents/

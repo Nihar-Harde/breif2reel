@@ -12,15 +12,18 @@ Each ticket is scoped to be handed to GitHub Copilot as a single implementation 
 **Week 2**
 - A4. Implement Copywriter Agent (FR-AGENT-01): given a campaign brief dict, return structured JSON `{ caption, hashtags, voiceover_script, image_prompt }`.
 - A5. Implement standalone MoviePy/FFmpeg compositing script: image + audio → captioned .mp4 (FR-AGENT-04), callable as a function, not yet wired to agents.
+- A5a. Request Azure Container Apps GPU quota and record the approved region/profile; continue local development while quota is pending (FR-VIDEO-06).
 
 **Week 3**
 - A6. Implement Design Agent (FR-AGENT-02): Pollinations.ai call with HF Inference fallback on timeout/error.
 - A7. Implement Audio Agent (FR-AGENT-03): edge-tts script-to-mp3.
 - A8. Implement Orchestrator (FR-AGENT-07) sequencing A4→A6→A7→A5, persisting each intermediate artifact to `campaign_assets`.
+- A8a. Scaffold the self-hosted video inference container with a model adapter, explicit frame/duration configuration, health endpoint, and Blob Storage handoff (FR-VIDEO-01/02/03).
 
 **Week 4**
 - A9. Wire `/api/v1/campaigns/{id}/generate` to the Orchestrator; ensure milestone (product→video→post) works manually end-to-end with Track C's publish script.
 - A10. Add retry/backoff wrapper for all external agent calls (NFR §2).
+- A10a. Add the frontend-triggered video job contract, immediate job acknowledgement, idempotency, bounded status polling, retry/resume behavior, and `video_generations` persistence (FR-VIDEO-04/05).
 
 **Week 5**
 - A11. Implement `brand_assets` PDF/text ingestion + chunking + embedding into ChromaDB per niche (FR-BRIEF-03).
@@ -35,6 +38,7 @@ Each ticket is scoped to be handed to GitHub Copilot as a single implementation 
 **Week 7 (buffer)**
 - A17. Edge-case handling: empty/short briefs, agent timeouts, malformed LLM JSON output (add JSON-repair/retry logic).
 - A18. Performance pass on video rendering time; offload to async task if needed.
+- A18a. Optimize LTX-Video Pro on the A100 profile (`Consumption-GPU-NC24ads-A100`) and T4 fallback using representative prompts; record VRAM, cold start, generation latency (~2.5–3 min target), prompt adherence, 241-frame output validation, and cost per clip (~$0.08–$0.12/clip).
 
 **Week 8 (buffer)**
 - A19. Final integration freeze; fix bugs surfaced by Track D's regression pass only.
@@ -73,6 +77,7 @@ Each ticket is scoped to be handed to GitHub Copilot as a single implementation 
 
 **Week 1**
 - C1. Create Supabase project; note pause behavior and schedule accordingly (NFR §2).
+- C1a. Request/verify Azure GPU quota (A100 primary, T4 fallback), then create the Container Apps environment with Consumption GPU workload profile, storage account/blob container, managed identity, secrets, and $190 budget alert with stop action. Quota approval is required for deployment.
 - C2. Create Cloudinary account; store credentials in Render/GitHub secrets.
 - C3. Set up GitHub repo, branch protections, GitHub Actions skeleton workflow (no-op cron for now).
 - C4. Create Meta Developer app; add team members as roles; confirm Standard Access is sufficient (non-blocking task, do not wait on this before continuing other work).
@@ -88,6 +93,7 @@ Each ticket is scoped to be handed to GitHub Copilot as a single implementation 
 **Week 4**
 - C9. Implement Cloudinary upload step (FR-PUBLISH-01) and wire into the milestone end-to-end path with Track A.
 - C10. Turn on the GitHub Actions cron schedule pointing at `/api/v1/publish/run` (initially manual-trigger only, then scheduled).
+- C10a. Deploy the video container to Azure Container Apps, verify scale-to-zero and one-job-per-GPU behavior, then connect the backend to the internal endpoint (FR-VIDEO-03).
 
 **Week 5**
 - C11. Implement multi-account token registry setup flow (`accounts` table population) for all niche account bundles (FR-ACCOUNT-01).
@@ -96,6 +102,7 @@ Each ticket is scoped to be handed to GitHub Copilot as a single implementation 
 **Week 6**
 - C13. Implement per-platform independent error handling/retry in the dispatcher (FR-PUBLISH-05).
 - C14. Implement Cloudinary cleanup step post-publish (FR-PUBLISH-06) and set up basic usage/quota logging for Cloudinary credits, YouTube quota units, and Groq/Gemini request counts (NFR §5).
+- C14a. Add Azure GPU-seconds, estimated cost, Blob usage, and cumulative $190-credit telemetry to logs and analytics; reconcile estimates against Azure Cost Management for ~60 videos (FR-VIDEO-05, NFR §5).
 
 **Week 7 (buffer)**
 - C15. Token refresh handling and expiry alerts (FR-ACCOUNT-03).
@@ -112,6 +119,7 @@ Each ticket is scoped to be handed to GitHub Copilot as a single implementation 
 
 **Week 2**
 - D3. Write manual test cases for the "one product → one video" happy path.
+- D3a. Add video-specific tests for 720x1280 dimensions, ≥ 10s duration (default 241 frames @ 24fps), prompt handoff, Blob artifact retrieval, transient retry, resume after interruption, and invalid-parameter rejection.
 
 **Week 3**
 - D4. Execute first manual end-to-end test against Track A/C's early scripts; log defects.
@@ -124,6 +132,7 @@ Each ticket is scoped to be handed to GitHub Copilot as a single implementation 
 
 **Week 6**
 - D7. Run the evaluation script against a batch of sample briefs; produce first Evaluation Report draft (see Evaluation Plan doc) covering Critic scores, repetition scores, failure rates.
+- D7a. Run a controlled batch evaluation of LTX-Video Pro on A100 measuring latency (~2.5–3 min), VRAM, prompt adherence, output validity, retry rate, and GPU cost per clip for ~60 videos.
 
 **Week 7 (buffer)**
 - D8. Full regression pass across all modules against the FRS; log and prioritize bugs for Tracks A/B/C.

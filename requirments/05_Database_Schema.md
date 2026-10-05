@@ -69,6 +69,31 @@ Raw uploaded inputs (product image, optional guideline snippet) tied to a specif
 | file_path | text | |
 | created_at | timestamptz | |
 
+### `video_generations`
+One row per video inference attempt/job, including failed attempts, so batch work can resume and GPU usage can be audited.
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| campaign_id | uuid FK → campaigns.id, nullable | Batch jobs may be prompt-only before campaign attachment |
+| idempotency_key | text, unique | Prevents duplicate generation on retry/resume |
+| prompt | text | Exact prompt sent to the inference service |
+| model_name | text | `ltx-video` (primary DiT model) |
+| gpu_profile | text | A100 primary (`Consumption-GPU-NC24ads-A100`); T4 recorded explicitly if fallback used |
+| width / height | integer | Must be 720 / 1280 |
+| fps | integer | 24 |
+| num_frames | integer | Explicit frame count (241 for 10.04s @ 24fps via $8n+1$ rule) |
+| duration_seconds | numeric | Must be between 10 and 15 (default 10) |
+| num_steps | integer, nullable | Inference setting (default 30–35) |
+| seed | bigint, nullable | Reproducibility setting |
+| status | text | enum: `queued`, `running`, `succeeded`, `failed`, `cancelled` |
+| attempt_count | integer | Number of inference attempts |
+| blob_url | text, nullable | Azure Blob artifact URL or resolvable reference |
+| generation_seconds | numeric, nullable | Wall-clock inference duration |
+| gpu_seconds | numeric, nullable | Metered GPU usage estimate/measurement |
+| estimated_cost_usd | numeric, nullable | Cost estimate; reconcile with Azure Cost Management |
+| error_message | text, nullable | Final or latest failure |
+| created_at / updated_at | timestamptz | |
+
 ### `traceability_records`
 One row per campaign, capturing what informed generation.
 | Column | Type | Notes |
@@ -99,3 +124,4 @@ Per-platform publish outcome for a campaign; one campaign yields up to 3 rows (I
 - Alembic migrations (as in the reference project) manage schema changes.
 - `access_token_encrypted` / `refresh_token_encrypted`: use `pgcrypto`'s `pgp_sym_encrypt`/`pgp_sym_decrypt` with a key stored only in the backend's environment secrets, never in the DB itself.
 - Indexes: `campaigns(niche_id, status)`, `post_history(campaign_id)`, `accounts(niche_id, platform)` for the dashboard's common query patterns.
+- Indexes: `campaigns(niche_id, status)`, `post_history(campaign_id)`, `accounts(niche_id, platform)`, `video_generations(status, created_at)`, and `video_generations(campaign_id)` for batch recovery and cost reporting.

@@ -14,7 +14,7 @@ All internal endpoints are prefixed `/api/v1`, return JSON, and require an `Auth
   Response: `{ campaign_id, status: "generating" }` (async; frontend polls or uses `/status`)
 
 - **GET `/api/v1/campaigns/{campaign_id}`** — Full campaign detail including generated content, Critic scores, and traceability record.
-  Response includes: `status`, `generated_caption`, `generated_script`, `cloudinary_url` (if published), `traceability: { retrieved_chunks, repetition_score, critic_scores, critic_justifications }`
+  Response includes: `status`, `generated_caption`, `generated_script`, `video: { status, blob_url, width, height, fps, duration_seconds, model, gpu_profile, attempt_count }`, `cloudinary_url` (if published), `traceability: { retrieved_chunks, repetition_score, critic_scores, critic_justifications }`
 
 - **GET `/api/v1/campaigns?niche_id=&status=`** — List/filter campaigns for the Review Queue and Post History views.
 
@@ -34,6 +34,13 @@ All internal endpoints are prefixed `/api/v1`, return JSON, and require an `Auth
 
 ### Analytics
 - **GET `/api/v1/analytics/summary?niche_id=&range=`** — Returns posts-per-week, average Critic score trend, and per-platform publish success rate for the dashboard's Analytics view.
+
+### Video Generation Service (Backend → Azure Container Apps)
+- **POST `/generate`** — Internal authenticated service endpoint. Body: `{ idempotency_key, prompt, width: 720, height: 1280, fps: 24, num_frames: 241, duration_seconds: 10, num_steps?, seed?, campaign_id? }`. The service rejects dimensions outside 720x1280 or duration outside 10–15 seconds.
+- Response for an accepted job: `{ job_id, status: "queued" | "running", model: "ltx-video", gpu_profile: "Consumption-GPU-NC24ads-A100" }`.
+- **GET `/generate/{job_id}`** — Returns `{ job_id, status, blob_url?, width, height, fps, num_frames, duration_seconds, model, gpu_profile, generation_seconds?, gpu_seconds?, estimated_cost_usd?, attempt_count, error? }`.
+- The backend orchestrator polls or receives completion according to the deployment design, persists the result in `video_generations`, and never holds the frontend request open through GPU inference.
+- **Frontend workflow:** `POST /api/v1/campaigns/{campaign_id}/generate` creates the job and returns immediately with `{ campaign_id, job_id, status: "generating" }`; the frontend polls the campaign detail/status endpoint until the video-generation status is `succeeded` or `failed` (typically ~3–4 minutes warm). Optional sequential batch submission is reserved for evaluation (~60 videos total), but is not the default UI workflow.
 
 ## Part B — External API Calls (Backend → Third Parties)
 
@@ -76,4 +83,4 @@ Note: confirm current quota cost of `videos.insert` in Google Cloud Console befo
 
 ## Part C — Error Conventions
 - All internal endpoints return `{ error: { code, message } }` on failure with appropriate HTTP status (400 validation, 401/403 auth, 404 not found, 502 for third-party API failures).
-- Third-party failures (Meta/YouTube/Cloudinary) are caught, logged with the raw provider error, retried per NFR §2, and surfaced in `post_history.error_message` — never silently swallowed.
+- Third-party and video-service failures (Azure Container Apps/Blob, Meta/YouTube/Cloudinary) are caught, logged with a sanitized provider error, retried per NFR §2, and surfaced in the relevant generation or `post_history.error_message` record — never silently swallowed.

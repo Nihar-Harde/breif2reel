@@ -5,6 +5,7 @@ from groq import Groq
 from google import genai
 from google.genai import types
 from app.core.config import get_settings
+from app.core.retry import with_retry
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ class LLMService:
         else:
             logger.warning("GEMINI_API_KEY is not set or placeholder.")
 
+    @with_retry(max_attempts=3, min_wait_seconds=1.0, max_wait_seconds=6.0)
     def generate(
         self,
         prompt: str,
@@ -47,20 +49,20 @@ class LLMService:
     ) -> str:
         """Generate content from an LLM.
 
-        Primary: Groq (llama-3.3-70b-versatile)
-        Fallback: Gemini (gemini-1.5-flash) if Groq fails or is unconfigured.
+        Primary: Groq (openai/gpt-oss-120b)
+        Fallback: Gemini (gemini-3.6-flash) if Groq fails or is unconfigured.
         """
         # Try Groq first
         if self.groq_client:
             try:
-                logger.info("Attempting text generation with Groq (llama-3.3-70b-versatile)...")
+                logger.info("Attempting text generation with Groq (openai/gpt-oss-120b)...")
                 messages = []
                 if system_instruction:
                     messages.append({"role": "system", "content": system_instruction})
                 messages.append({"role": "user", "content": prompt})
 
                 kwargs: dict[str, Any] = {
-                    "model": "llama-3.3-70b-versatile",
+                    "model": "openai/gpt-oss-120b",
                     "messages": messages,
                     "temperature": temperature,
                 }
@@ -81,7 +83,7 @@ class LLMService:
         # Fallback: Gemini
         if self.gemini_client:
             try:
-                logger.info("Attempting text generation with Gemini (gemini-1.5-flash)...")
+                logger.info("Attempting text generation with Gemini (gemini-3.6-flash)...")
                 config_kwargs: dict[str, Any] = {
                     "temperature": temperature,
                 }
@@ -93,7 +95,7 @@ class LLMService:
                     config_kwargs["response_mime_type"] = "application/json"
 
                 response = self.gemini_client.models.generate_content(
-                    model="gemini-1.5-flash",
+                    model="gemini-3.6-flash",
                     contents=prompt,
                     config=types.GenerateContentConfig(**config_kwargs),
                 )
