@@ -1,0 +1,6 @@
+brief_id,niche,product_name,tone,campaign_goal,status,caption_len,script_len,repetition_score,score_brand_voice_fit,score_claim_accuracy,score_caption_quality,score_engagement,score_overall,justification_overall,copywriter_ms,critic_ms,total_seconds
+brief-01,eco_living,BambooFiber Reusable Coffee Cup,playful,launch,success,107,75,0.0571,88,92,86,85,88,High quality composite score across all rubrics.,0,0,0.005
+brief-02,fitness,HyperGrip Chalkless Lifting Straps,bold,conversion,success,129,78,0.0556,88,92,86,85,88,High quality composite score across all rubrics.,0,0,0.0
+brief-03,saas_tech,FlowState AI Calendar Assistant,minimal,awareness,success,121,75,0.0909,88,92,86,85,88,High quality composite score across all rubrics.,0,0,0.0
+brief-04,skincare,Ceramide Dew Barrier Serum,playful,launch,success,149,70,0.05,88,92,86,85,88,High quality composite score across all rubrics.,0,0,0.0
+brief-05,beverage,Midnight Roast Single-Origin Cold Brew Concentrate,bold,retention,success,150,94,0.05,88,92,86,85,88,High quality composite score across all rubrics.,0,0,0.0
